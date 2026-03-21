@@ -216,7 +216,8 @@ function initClient(wrt, container) {
     torrent.on('error', function(err) { addLog('Error: ' + err.message); render() })
 
     torrent.on('wire', function() {
-      addLog('Peer connected (' + torrent.numPeers + ' total)')
+      var t = ((Date.now() - startTime) / 1000).toFixed(1)
+      addLog('\u{1F7E2} Peer connected (' + torrent.numPeers + ' total) — ' + t + 's to first peer')
       addLog('Requesting torrent metadata from peer...')
       render()
     })
@@ -230,7 +231,8 @@ function initClient(wrt, container) {
     })
 
     torrent.on('done', function() {
-      addLog('Download complete!')
+      var t = ((Date.now() - startTime) / 1000).toFixed(1)
+      addLog('\u2705 Download complete! Total time: ' + t + 's')
       state.phase = 'done'
       render()
 
