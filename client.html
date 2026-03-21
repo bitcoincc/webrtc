@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC File Transfer</title>
+  <style>
+    * { margin: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, sans-serif; background: #fafafa; color: #333; }
+  </style>
+</head>
+<body>
+
+<script id="data" type="application/ld+json">
+{
+  "@context": { "schema": "https://schema.org/" },
+  "@id": "#this",
+  "@type": "schema:Action",
+  "schema:name": "WebRTC File Transfer"
+}
+</script>
+
+<script type="module" data-pane src="panes/download-pane.js"></script>
+
+<script>
+  // Pass magnet link and tracker config to pane via global
+  var params = new URLSearchParams(window.location.search)
+  window._wrt = {
+    magnet: params.get('magnet') || '',
+    trackers: [
+      'wss://tracker.webtorrent.dev',
+      'wss://tracker.openwebtorrent.com',
+      'wss://tracker.btorrent.xyz',
+    ],
+  }
+</script>
+
+<div id="losos"></div>
+<script type="module" src="losos/shell.js"></script>
+
+</body>
+</html>

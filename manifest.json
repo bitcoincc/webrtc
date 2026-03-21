@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "WebRTC File Transfer",
+  "description": "Peer-to-peer file transfer via WebRTC. Handles magnet links in the browser.",
+  "version": "0.0.1",
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "WebRTC File Transfer"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "magnet",
+      "url": "client.html?magnet=%s"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["client.html", "client.js", "lib/*", "losos/*", "lion/*", "panes/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

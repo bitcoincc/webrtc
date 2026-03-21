@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head><title>WebTorrent Test</title></head>
+<body>
+  <h1>WebTorrent Test</h1>
+  <input id="magnet" type="text" placeholder="paste magnet link" style="width:600px;padding:8px" />
+  <button id="go">Download</button>
+  <pre id="log"></pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+  <script>
+    var log = document.getElementById('log')
+    function print(msg) { log.textContent += msg + '\n'; console.log(msg) }
+
+    print('WebTorrent loaded: ' + (typeof WebTorrent))
+    print('WebTorrent version: ' + (WebTorrent.VERSION || 'unknown'))
+
+    var params = new URLSearchParams(window.location.search)
+    var qMagnet = params.get('magnet')
+    if (qMagnet) {
+      document.getElementById('magnet').value = qMagnet
+      setTimeout(function() { document.getElementById('go').click() }, 500)
+    }
+
+    document.getElementById('go').onclick = function() {
+      var magnet = document.getElementById('magnet').value
+      if (!magnet) return
+      print('Magnet: ' + magnet)
+
+      var client = new WebTorrent()
+      print('Client created')
+
+      client.on('error', function(err) { print('CLIENT ERROR: ' + err.message) })
+      client.on('warning', function(err) { print('CLIENT WARNING: ' + err.message) })
+
+      var torrent = client.add(magnet, { announce: [
+        'wss://tracker.webtorrent.dev',
+        'wss://tracker.openwebtorrent.com',
+        'wss://tracker.btorrent.xyz'
+      ]})
+
+      print('Torrent object created, infoHash: ' + torrent.infoHash)
+
+      torrent.on('error', function(err) { print('TORRENT ERROR: ' + err.message) })
+      torrent.on('warning', function(err) { print('TORRENT WARNING: ' + err.message) })
+
+      torrent.on('infoHash', function() { print('EVENT infoHash: ' + torrent.infoHash) })
+      torrent.on('metadata', function() {
+        print('EVENT metadata received!')
+        print('Name: ' + torrent.name)
+        print('Files: ' + torrent.files.length)
+        torrent.files.forEach(function(f) { print('  ' + f.name + ' (' + f.length + ')') })
+      })
+
+      torrent.on('ready', function() { print('EVENT ready') })
+      torrent.on('wire', function(wire) { print('EVENT wire: new peer connected') })
+
+      torrent.on('download', function(bytes) {
+        print('DL: ' + Math.round(torrent.progress * 100) + '% ' +
+              Math.round(torrent.downloadSpeed / 1024) + 'KB/s peers:' + torrent.numPeers)
+      })
+
+      torrent.on('done', function() { print('DONE!') })
+
+      // Check tracker status after 5 seconds
+      setTimeout(function() {
+        print('--- Status after 5s ---')
+        print('Peers: ' + torrent.numPeers)
+        print('Progress: ' + Math.round(torrent.progress * 100) + '%')
+        print('Trackers announcing to: ' + (torrent.discovery && torrent.discovery.tracker ?
+          torrent.discovery.tracker._trackers.map(function(t) { return t.announceUrl }).join(', ') : 'none'))
+      }, 5000)
+
+      // Check again at 15s
+      setTimeout(function() {
+        print('--- Status after 15s ---')
+        print('Peers: ' + torrent.numPeers)
+        print('Progress: ' + Math.round(torrent.progress * 100) + '%')
+      }, 15000)
+    }
+  </script>
+</body>
+</html>
