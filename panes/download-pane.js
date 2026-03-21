@@ -215,10 +215,16 @@ function initClient(wrt, container) {
     torrent.on('warning', function(err) { addLog('Warning: ' + err.message); render() })
     torrent.on('error', function(err) { addLog('Error: ' + err.message); render() })
 
+    var peerCount = 0
     torrent.on('wire', function() {
+      peerCount++
       var t = ((Date.now() - startTime) / 1000).toFixed(1)
-      addLog('\u{1F7E2} Peer connected (' + torrent.numPeers + ' total) — ' + t + 's to first peer')
-      addLog('Requesting torrent metadata from peer...')
+      if (peerCount === 1) {
+        addLog('\u{1F7E2} First peer connected — ' + t + 's')
+        addLog('Requesting torrent metadata from peer...')
+      } else {
+        addLog('Peer #' + peerCount + ' connected — ' + t + 's')
+      }
       render()
     })
 
