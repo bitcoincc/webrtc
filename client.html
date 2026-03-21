@@ -22,18 +22,7 @@
 
 <script type="module" data-pane src="panes/download-pane.js"></script>
 
-<script>
-  // Pass magnet link and tracker config to pane via global
-  var params = new URLSearchParams(window.location.search)
-  window._wrt = {
-    magnet: params.get('magnet') || '',
-    trackers: [
-      'wss://tracker.webtorrent.dev',
-      'wss://tracker.openwebtorrent.com',
-      'wss://tracker.btorrent.xyz',
-    ],
-  }
-</script>
+<script src="init.js"></script>
 
 <div id="losos"></div>
 <script type="module" src="losos/shell.js"></script>

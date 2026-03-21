@@ -1,16 +1,14 @@
 /**
- * Background service worker — intercepts magnet links
+ * Background service worker — opens client page for magnet links
  */
 
-// Listen for navigation to magnet: URIs
-chrome.webNavigation?.onBeforeNavigate?.addListener(function(details) {
-  if (details.url && details.url.startsWith('magnet:')) {
-    var clientUrl = chrome.runtime.getURL('client.html') + '?magnet=' + encodeURIComponent(details.url)
-    chrome.tabs.update(details.tabId, { url: clientUrl })
+chrome.runtime.onMessage.addListener(function(msg, sender) {
+  if (msg.type === 'magnet' && msg.url) {
+    var clientUrl = chrome.runtime.getURL('client.html') + '?magnet=' + msg.url
+    chrome.tabs.create({ url: clientUrl })
   }
-}, { url: [{ urlPrefix: 'magnet:' }] })
+})
 
-// Also handle clicks on the extension icon — open client
 chrome.action.onClicked.addListener(function() {
   chrome.tabs.create({ url: chrome.runtime.getURL('client.html') })
 })
