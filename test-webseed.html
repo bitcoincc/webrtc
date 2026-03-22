@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>WebSeed Test — Bitcoin Headers</title></head>
+<body>
+  <h1>Bitcoin Headers — HTTP WebSeed + WebRTC</h1>
+  <pre id="log"></pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+  <script>
+    var log = document.getElementById('log')
+    function print(msg) { log.textContent += msg + '\n' }
+
+    var TORRENT_URL = 'https://melvin.me/melvin/public/btc-headers.torrent'
+    var WEBSEED_URLS = [
+      'https://melvin.me/.well-known/webrtc/d17fd54e591e4e42434c1695b3f4c50f249552fd/',
+      'https://melvincarvalho.com/.well-known/webrtc/d17fd54e591e4e42434c1695b3f4c50f249552fd/',
+    ]
+    var t0 = Date.now()
+
+    function elapsed() { return ((Date.now() - t0) / 1000).toFixed(1) + 's' }
+
+    print('Fetching .torrent file...')
+
+    print('Loading torrent from: ' + TORRENT_URL)
+
+    var client = new WebTorrent()
+    var torrent = client.add(TORRENT_URL, {
+      announce: [
+        'wss://melvin.me/.webrtc',
+        'wss://tracker.openwebtorrent.com',
+      ],
+      urlList: WEBSEED_URLS
+    })
+
+        print(elapsed() + ' Added to WebTorrent, infohash: ' + torrent.infoHash)
+        print(elapsed() + ' Web seeds: ' + WEBSEED_URLS.length)
+
+        torrent.on('wire', function() {
+          print(elapsed() + ' Peer connected (' + torrent.numPeers + ')')
+        })
+
+        torrent.on('metadata', function() {
+          print(elapsed() + ' Metadata ready: ' + torrent.name + ' (' + (torrent.length / 1048576).toFixed(1) + ' MB)')
+        })
+
+        torrent.on('download', function() {
+          var pct = Math.round(torrent.progress * 100)
+          var speed = (torrent.downloadSpeed / 1048576).toFixed(1)
+          var dl = (torrent.downloaded / 1048576).toFixed(1)
+          log.lastChild.textContent = elapsed() + ' ' + pct + '% — ' + dl + ' MB — ' + speed + ' MB/s — peers: ' + torrent.numPeers
+        })
+
+        torrent.on('done', function() {
+          print(elapsed() + ' DONE! Total: ' + (torrent.downloaded / 1048576).toFixed(1) + ' MB')
+        })
+
+        torrent.on('error', function(err) { print(elapsed() + ' ERROR: ' + err.message) })
+        torrent.on('warning', function(err) { print(elapsed() + ' warning: ' + err.message) })
+
+        // Tick for visibility
+        setInterval(function() {
+          if (torrent.progress >= 1) return
+          print('')
+        }, 2000)
+    client.on('error', function(err) { print(elapsed() + ' Client error: ' + err.message) })
+  </script>
+</body>
+</html>

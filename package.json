@@ -1,0 +1,28 @@
+{
+  "name": "webrtc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitcoincc/webrtc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/bitcoincc/webrtc/issues"
+  },
+  "homepage": "https://github.com/bitcoincc/webrtc#readme",
+  "dependencies": {
+    "ws": "^8.20.0"
+  }
+}
